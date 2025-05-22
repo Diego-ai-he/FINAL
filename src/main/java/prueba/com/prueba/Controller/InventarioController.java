@@ -1,19 +1,32 @@
-package prueba.com.prueba.Controller;
+package prueba.com.prueba.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import prueba.com.prueba.model.Inventario;
+import prueba.com.prueba.service.InventarioService;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/employees")
-@RequiredArgsConstructor
+@RequestMapping("/inventario")
 public class InventarioController {
+    @Autowired
+    private InventarioService inventarioService;
 
-    @GetMapping("/status")
-    public String getStatus() {
-        return "Employee API is running! 🙌";
+    @GetMapping("/{idProducto}")
+    public ResponseEntity<Inventario> obtenerStock(@PathVariable Long idProducto) {
+        Optional<Inventario> inventario = inventarioService.obtenerStock(idProducto);
+        return inventario.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{idProducto}")
+    public ResponseEntity<Inventario> actualizarStock(
+            @PathVariable Long idProducto,
+            @RequestParam Integer stock) {
+        Optional<Inventario> inventario = inventarioService.actualizarStock(idProducto, stock);
+        return inventario.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
